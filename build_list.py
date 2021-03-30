@@ -78,3 +78,7 @@ for page in sorted(server_pages, key=server_pages.get, reverse=True):
         print('RewriteRule "^%s" "%s%s" [R=301,END]' % (
             reg_escape(server_pages[page]),
             CONFIG["cloud_uri"], cloud_pages[page]))
+#
+# Add a final redirect for the space root
+print('RewriteRule "^/display/%s" "%s/spaces/%s" [R=301,END]' % (
+    CONFIG["space_key"], CONFIG["cloud_uri"], CONFIG["space_key"]))
