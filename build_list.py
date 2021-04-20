@@ -60,6 +60,23 @@ def reg_escape(url):
     url = url.replace(".", "\.")
     return url.replace("+", "\+")
 
+def process_standard_page(page):
+    """ Output a redirect for a normal page """
+    print('RewriteRule "^%s" "%s%s" [R=301,END]' % (
+        reg_escape(server_pages[page]),
+        CONFIG["cloud_uri"], cloud_pages[page]))
+
+def process_query_string(page):
+    """ Process a URL with a pageId in it """
+    # Split the URL on the question mark
+    parts = server_pages[page].split("?")
+    # Output the conditional
+    print('RewriteCond %{QUERY_STRING} ^' + parts[1] + '$')
+    # then the redirect
+    print('RewriteRule "^%s" "%s%s?" [R=301,END]' % (
+        reg_escape(parts[0]),
+        CONFIG["cloud_uri"], cloud_pages[page]))
+
 load_config()
 server_auth = get_auth("server_user", "server_pw")
 cloud_auth = get_auth("cloud_user", "cloud_pw")
@@ -75,9 +92,10 @@ for page in server_pages:
 # there are similar URLs, the longer ones get matched first.
 for page in sorted(server_pages, key=server_pages.get, reverse=True):
     if page in cloud_pages:
-        print('RewriteRule "^%s" "%s%s" [R=301,END]' % (
-            reg_escape(server_pages[page]),
-            CONFIG["cloud_uri"], cloud_pages[page]))
+        if "viewpage.action?pageId" in server_pages[page]:
+            process_query_string(page)
+        else:
+            process_standard_page(page)
 #
 # Add a final redirect for the space root
 print('RewriteRule "^/display/%s" "%s/spaces/%s" [R=301,END]' % (
