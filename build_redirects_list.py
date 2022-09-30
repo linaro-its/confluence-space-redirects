@@ -29,7 +29,7 @@ def get_auth(user_key, pw_key):
 
 def get_all_spaces_keys(server, auth):
     space_keys = []
-    url = "%s/rest/api/space?limit=500" % (server)
+    url = "%s/rest/api/space?limit=2000" % (server)
     spaces = requests.get(url, auth=auth)
     if spaces.status_code != 200:
         print(url)
