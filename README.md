@@ -1,6 +1,6 @@
 # Confluence Space Redirects
 
-A simple script to scan a space on Confluence Server/Data Centre and on Confluence Cloud then produce the necessary redirects for the pages.
+A simple script to scan *all global spaces* on Confluence Server/Data Centre and on Confluence Cloud then produce the necessary redirects for the pages.
 
 ## Requirements
 
@@ -9,7 +9,7 @@ A simple script to scan a space on Confluence Server/Data Centre and on Confluen
 
 ## Setting up
 
-Copy `config.sample.jsonc` to `config.jsonc`. Edit it as required, replacing `<your email address>`, `<your password>`, `<your API token>` and `<space key>` as appropriate.
+Copy `config.sample.jsonc` to `config.jsonc`. Edit it as required, replacing `<your email address>`, `<your password>`, `<your API token>` as appropriate.
 
 If you don't already have an API token for Confluence Cloud, go to <https://id.atlassian.com/manage-profile/security/api-tokens> and click on "Create API token".
 

@@ -27,7 +27,22 @@ def get_auth(user_key, pw_key):
     password = CONFIG[pw_key]
     return HTTPBasicAuth(username, password)
 
-def get_all_pages(server, auth, space_key):
+def get_all_spaces_keys(server, auth):
+    space_keys = []
+    url = "%s/rest/api/space?limit=500" % (server)
+    spaces = requests.get(url, auth=auth)
+    if spaces.status_code != 200:
+        print(url)
+        print(spaces.text)
+        sys.exit("Failed to retrieve URL %s" % (url))
+    data = spaces.json()
+    results = data["results"]
+    for space_key in results:
+        if space_key["type"] == "global":
+            space_keys.append(space_key["key"])
+    return space_keys
+
+def get_all_space_pages(server, auth, space_key):
     """ Return a dict of page names and their URLs """
     all_pages = {}
     start = 0
@@ -80,23 +95,28 @@ def process_query_string(page):
 load_config()
 server_auth = get_auth("server_user", "server_pw")
 cloud_auth = get_auth("cloud_user", "cloud_pw")
-server_pages = get_all_pages(CONFIG["server_uri"], server_auth, CONFIG["space_key"])
-cloud_pages = get_all_pages(CONFIG["cloud_uri"], cloud_auth, CONFIG["space_key"])
-#
-# Iterate through to see if any pages are missing
-for page in server_pages:
-    if page not in cloud_pages:
-        print("WARNING! Cannot find '%s' in cloud" % page)
-#
-# Now produce the Apache redirects. Reverse the sort order so that if
-# there are similar URLs, the longer ones get matched first.
-for page in sorted(server_pages, key=server_pages.get, reverse=True):
-    if page in cloud_pages:
-        if "viewpage.action?pageId" in server_pages[page]:
-            process_query_string(page)
-        else:
-            process_standard_page(page)
-#
-# Add a final redirect for the space root
-print('RewriteRule "^/display/%s" "%s/spaces/%s" [R=301,END]' % (
-    CONFIG["space_key"], CONFIG["cloud_uri"], CONFIG["space_key"]))
+
+spaces_keys = get_all_spaces_keys(CONFIG["server_uri"], server_auth)
+
+for space_key in spaces_keys:
+    print ("# Redirects for space: '%s'" % space_key)
+    server_pages = get_all_space_pages(CONFIG["server_uri"], server_auth, space_key)
+    cloud_pages = get_all_space_pages(CONFIG["cloud_uri"], cloud_auth, space_key)
+    #
+    # Iterate through to see if any pages are missing
+    for page in server_pages:
+        if page not in cloud_pages:
+            print("WARNING! Cannot find '%s' in cloud" % page)
+    #
+    # Now produce the Apache redirects. Reverse the sort order so that if
+    # there are similar URLs, the longer ones get matched first.
+    for page in sorted(server_pages, key=server_pages.get, reverse=True):
+        if page in cloud_pages:
+            if "viewpage.action?pageId" in server_pages[page]:
+                process_query_string(page)
+            else:
+                process_standard_page(page)
+    #
+    # Add a final redirect for the space root
+    print('RewriteRule "^/display/%s" "%s/spaces/%s" [R=301,END]' % (
+        CONFIG["space_key"], CONFIG["cloud_uri"], space_key))
