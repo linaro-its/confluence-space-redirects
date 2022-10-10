@@ -119,4 +119,4 @@ for space_key in spaces_keys:
     #
     # Add a final redirect for the space root
     print('RewriteRule "^/display/%s" "%s/spaces/%s" [R=301,END]' % (
-        CONFIG["space_key"], CONFIG["cloud_uri"], space_key))
+        space_key, CONFIG["cloud_uri"], space_key))

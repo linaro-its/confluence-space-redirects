@@ -19,7 +19,7 @@ If you don't already have an API token for Confluence Cloud, go to <https://id.a
 
 ``` Python
 pipenv install
-pipenv run python build_list.py
+pipenv run python build_redirects_list.py
 ```
 
 The script will emit a series of Apache redirect rules to the console. If the script runs without errors, run it again, redirecting output to a file and then send that file to IT Services so that the rules can be implemented on the server.
