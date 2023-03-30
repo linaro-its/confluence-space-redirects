@@ -14,7 +14,4 @@
     // The value for "cloud_pw" must be an API token, which
     // can be set up at https://id.atlassian.com/manage-profile/security/api-tokens
     "cloud_pw": "<your API token>",
-
-    // SPACE
-    "space_key": "<space key>"
 }
